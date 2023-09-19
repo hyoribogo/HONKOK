@@ -1,0 +1,26 @@
+name: Sync and merge upstream repository
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR was merged
+        id: pr
+        run: echo "::set-output name=merged::$(jq -r .pull_request.merged <<< $GITHUB_EVENT_PATH)"
+
+      - name: Merge upstream
+        if: steps.pr.outputs.merged == 'true' # PR이 merge되었을 때만 실행
+        run: |
+          git config --global user.name 'hyoribogo'
+          git config --global user.email 'mesmerize0416@naver.com'
+          git pull --unshallow
+          git remote add upstream https://github.com/prgrms-fe-devcourse/FEDC4_HONKOK_JunilHwang.git
+          git fetch upstream
+          git checkout main
+          git merge -Xtheirs upstream/main
+          git push origin main
