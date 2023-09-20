@@ -1,5 +1,5 @@
 interface User {
-  coverImage: string; // 커버 이미지
+  coverImage?: string; // 커버 이미지
   image: string; // 프로필 이미지
   role: string;
   emailVerified: boolean; // 사용되지 않음
@@ -40,6 +40,7 @@ interface Post {
   author: User;
   createdAt: string;
   updatedAt: string;
+  content?: string;
 }
 
 interface Like {
