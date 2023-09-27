@@ -1,38 +1,47 @@
-import ProfileHeader from './ProfileHeader';
-import { Header, PostCard } from '~/components/domain';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ProfileHeader } from './components';
+import { Header, PostCard, PostList } from '~/components/domain';
 import { useUser } from '~/hooks';
-import { Post } from '~/types';
+import { useGetUserInfo, useGetUserPosts } from '~/services';
+import { assert } from '~/utils';
 
 const ProfilePage = () => {
   const { user } = useUser();
 
-  if (!user) return null;
+  const { userId } = useParams();
+  const navigate = useNavigate();
+
+  assert(userId);
+
+  const { data: userInfo } = useGetUserInfo({ userId });
+  const { data: userPosts, ref } = useGetUserPosts({
+    authorId: userId,
+    limit: 6
+  });
+
+  assert(userInfo);
+
+  const myProfile = user?._id === userId;
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto bg-gray-100">
       <Header rightArea={true} leftArea="left-arrow">
-        {user.fullName}
+        {userInfo.fullName}
       </Header>
-      <ProfileHeader />
-      <div className="bg-gray-100">
-        <div className="px-5 py-5">작성한 글 보기</div>
-        <ul className="grid grid-cols-2 justify-items-center">
-          {user.posts.map((post: Post) => (
-            <PostCard
-              key={post._id}
-              _id={post._id}
-              channel={post.channel}
-              comments={post.comments}
-              createdAt={post.createdAt}
-              likes={post.likes}
-              title={post.title}
-              content={post.content}
-              image={post.image}
-              handleClick={() => {}}
-            />
-          ))}
-        </ul>
-      </div>
+
+      <ProfileHeader {...userInfo} myProfile={myProfile} />
+      <PostList
+        ref={ref}
+        title="작성한 글 보기"
+        posts={userPosts}
+        RenderComponent={(post) => (
+          <PostCard
+            {...post}
+            handleClick={() => navigate(`/posts/${post._id}`)}
+          />
+        )}
+        className="cs:h-fit"
+      />
     </div>
   );
 };

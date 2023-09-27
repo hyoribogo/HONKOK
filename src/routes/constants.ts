@@ -2,12 +2,16 @@ export const PATH = {
   HOME: '/',
   SIGNUP: '/signup',
   CHANNEL: '/channels/:channelName',
+  NOTIFICATIONS: '/notifications',
   POST: '/posts/:postId',
-  POST_CREATE: '/post-edit',
-  POST_EDIT: '/post-edit/:postId',
+  POST_CREATE: '/post-create',
+  POST_EDIT: '/post-edit',
   PROFILE: '/profile/:userId',
   PROFILE_EDIT: '/profile-edit',
   FOLLOW: '/follow',
-  CONVERSATIONS: '/conversations',
-  CHAT: '/chat'
+  LIKE_LIST: '/like-list',
+  CHAT: '/chat',
+  CHAT_DETAIL: '/chat/:chatId',
+  SEARCH: '/search',
+  CONVERSATIONS: '/conversations'
 };

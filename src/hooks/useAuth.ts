@@ -1,5 +1,6 @@
 import useUser from './useUser';
 import { snsApiClient } from '~/api';
+import { ApiError } from '~/utils/apiError';
 
 interface SignIn {
   email: string;
@@ -23,8 +24,6 @@ const useAuth = () => {
       const { data, status } = await snsApiClient.post(urlEndpoint, authInfo);
 
       if (status === BAD_REQUEST) {
-        console.log('Unauthorized');
-
         return;
       }
 
@@ -34,7 +33,7 @@ const useAuth = () => {
 
       return data;
     } catch (error) {
-      throw new Error('Error');
+      throw new ApiError('unauthorized');
     }
   };
 

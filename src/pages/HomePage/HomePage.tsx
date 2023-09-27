@@ -2,9 +2,9 @@ import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChannelInfo, ChannelList } from './components';
 import { CHANNELS } from './constants';
+import { Logo } from '~/assets';
 import { HorizontalScroll } from '~/components/common';
-import { Header, PostCard } from '~/components/domain';
-import { PostList } from '~/components/domain';
+import { Header, PostCard, PostList } from '~/components/domain';
 import { useGetChannels, useGetPosts } from '~/services';
 import { getRandomItem } from '~/utils';
 
@@ -12,12 +12,19 @@ const HomePage = () => {
   const navigate = useNavigate();
   const dragStateRef = useRef(false);
 
-  const randomChannelKey = getRandomItem(Object.keys(CHANNELS));
-  const randomChannel = CHANNELS[randomChannelKey as keyof typeof CHANNELS];
+  const randomChannelRef = useRef<
+    (typeof CHANNELS)[keyof typeof CHANNELS] | null
+  >(null);
 
-  const { data: channels = [] } = useGetChannels();
-  const { data: posts } = useGetPosts({
-    channelId: randomChannel.id,
+  if (randomChannelRef.current === null) {
+    const randomChannelKey = getRandomItem(Object.keys(CHANNELS));
+    randomChannelRef.current =
+      CHANNELS[randomChannelKey as keyof typeof CHANNELS];
+  }
+
+  const { data: channels } = useGetChannels();
+  const { data: posts, ref } = useGetPosts({
+    channelId: randomChannelRef.current.id,
     limit: 6
   });
 
@@ -37,8 +44,10 @@ const HomePage = () => {
   };
 
   return (
-    <div className="relative h-full overflow-y-scroll bg-gray-100">
-      <Header>혼콕</Header>
+    <div className="relative h-full overflow-y-auto bg-gray-100">
+      <Header>
+        <Logo />
+      </Header>
       <ChannelInfo />
 
       <HorizontalScroll
@@ -46,19 +55,22 @@ const HomePage = () => {
         dragStart={handleDragStart}
         dragEnd={handleDragEnd}
       >
-        {/** @TODO 데이터 초기화 후에 수정할 prop 배열 */}
         <ChannelList
-          channels={channels.slice(4)}
+          channels={channels}
           handleChannelClick={handleChannelClick}
         />
       </HorizontalScroll>
 
       <PostList
+        ref={ref}
         title="추천글 보기"
         posts={posts}
-        className="mt-16"
+        className="mt-16 cs:h-fit"
         RenderComponent={(post) => (
-          <PostCard {...post} handleClick={() => console.log(post._id)} />
+          <PostCard
+            {...post}
+            handleClick={() => navigate(`/posts/${post._id}`)}
+          />
         )}
       />
     </div>
